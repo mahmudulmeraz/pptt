@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(cuid())
+  email          String?
+  name           String
+  facebookUserId String          @unique
+  createdAt      DateTime        @default(now())
+  pages          ConnectedPage[]
+}
+
+model ConnectedPage {
+  id                   String        @id @default(cuid())
+  userId               String
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pageId               String        @unique
+  pageName             String
+  pageCategory         String?
+  encryptedAccessToken String
+  isActive             Boolean       @default(true)
+  postFrequencyHours   Int           @default(24)
+  lastPostedAt         DateTime?
+  createdAt            DateTime      @default(now())
+  products             ProductItem[]
+  postQueue            PostQueue[]
+
+  @@index([userId])
+  @@index([isActive, lastPostedAt])
+}
+
+model ProductItem {
+  id              String        @id @default(cuid())
+  connectedPageId String
+  connectedPage   ConnectedPage @relation(fields: [connectedPageId], references: [id], onDelete: Cascade)
+  title           String
+  details         String
+  imageUrl        String?
+  imageData       String?
+  imageMimeType   String?
+  lastUsedAt      DateTime?
+  createdAt       DateTime      @default(now())
+
+  @@index([connectedPageId, lastUsedAt, createdAt])
+}
+
+model PostQueue {
+  id              String        @id @default(cuid())
+  connectedPageId String
+  connectedPage   ConnectedPage @relation(fields: [connectedPageId], references: [id], onDelete: Cascade)
+  productItemId   String?
+  content         String
+  imageUrl        String?
+  imageData       String?
+  imageMimeType   String?
+  status          String        @default("PENDING") // PENDING | PUBLISHED | FAILED
+  facebookPostId  String?
+  errorMessage    String?
+  scheduledFor    DateTime      @default(now())
+  publishedAt     DateTime?
+  createdAt       DateTime      @default(now())
+
+  @@index([connectedPageId, status, scheduledFor])
+}

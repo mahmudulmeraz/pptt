@@ -1,0 +1,6 @@
+{
+  "name": "PagePulse",
+  "description": "Multi-user Facebook Page auto-posting SaaS with official Meta OAuth, encrypted Page Access Tokens, and automated recurring scheduling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
